@@ -9,9 +9,11 @@ export default function AlertFeed({ alerts }) {
         <ul className="flex flex-col gap-2.5">
           {alerts.map((alert) => (
             <li key={alert.id} className="flex items-center gap-3 px-3.5 py-3 rounded-xl bg-white/[0.03] border border-white/5">
-              <span className="text-lg">⚡</span>
+              <span className="text-lg">{alert.type === 'audio' ? '🔊' : '⚡'}</span>
               <div className="flex flex-col gap-0.5">
-                <span className="text-sm text-gray-200 font-medium">Fast movement detected</span>
+                <span className="text-sm text-gray-200 font-medium">
+                  {alert.type === 'audio' ? 'Loud sound detected' : 'Fast movement detected'}
+                </span>
                 <span className="text-xs text-gray-600">{alert.time}</span>
               </div>
             </li>

@@ -28,4 +28,4 @@ export {
   rmsToDb,
   detectSpike,
   computeConfidence,
-} from './audioTriggerEngine.js';
+} from './normal_mode/audioTriggerEngine.js';

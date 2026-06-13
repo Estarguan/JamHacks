@@ -4,6 +4,7 @@ import StatusCard from './components/StatusCard'
 import AlertFeed from './components/AlertFeed'
 import CameraFeed from './components/CameraFeed'
 import useMotionSocket from './hooks/useMotionSocket'
+import useAudioTrigger from './hooks/useAudioTrigger'
 import './App.css'
 
 export default function App() {
@@ -11,7 +12,12 @@ export default function App() {
   const [alerts, setAlerts] = useState([])
 
   useMotionSocket((time) => {
-    setAlerts(prev => [{ id: Date.now(), time }, ...prev])
+    setAlerts(prev => [{ id: Date.now(), time, type: 'motion' }, ...prev])
+  })
+
+  useAudioTrigger(isMonitoring, () => {
+    const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    setAlerts(prev => [{ id: Date.now(), time, type: 'audio' }, ...prev])
   })
 
   return (
