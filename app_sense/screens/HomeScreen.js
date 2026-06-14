@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from 'react-native'
 import Logo from '../components/Logo'
-import PieChart from '../components/PieChart'
+import LogoMark from '../components/LogoMark'
 import { Colors } from '../constants/colors'
 
 function greeting() {
@@ -12,9 +12,6 @@ function greeting() {
 
 export default function HomeScreen({ navigation, alerts = [] }) {
   const unread = alerts.filter(a => !a.read).length
-  const high = alerts.filter(a => a.score >= 7).length
-  const medium = alerts.filter(a => a.score >= 4 && a.score < 7).length
-  const low = alerts.filter(a => a.score < 4).length
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -37,17 +34,8 @@ export default function HomeScreen({ navigation, alerts = [] }) {
           </TouchableOpacity>
         </View>
 
-        {/* Pie chart */}
         <View style={styles.chartCard}>
-          <PieChart high={high} medium={medium} low={low} size={220} />
-          <View style={styles.legend}>
-            {[['High', Colors.high], ['Medium', Colors.medium], ['Low', Colors.low]].map(([l, c]) => (
-              <View key={l} style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: c }]} />
-                <Text style={styles.legendText}>{l}</Text>
-              </View>
-            ))}
-          </View>
+          <LogoMark size={260} />
         </View>
 
         {/* This month's stats */}
@@ -100,10 +88,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     alignItems: 'center',
   },
-  legend: { flexDirection: 'row', gap: 20, marginTop: 16 },
-  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  legendDot: { width: 10, height: 10, borderRadius: 5 },
-  legendText: { fontSize: 13, color: Colors.gray },
   cardTitle: { fontSize: 16, fontWeight: '600', color: Colors.black, marginBottom: 8 },
   viewLink: { fontSize: 14, color: Colors.blue, fontWeight: '500' },
 })

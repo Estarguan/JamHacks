@@ -3,6 +3,7 @@ import Logo from '../components/Logo'
 import PieChart from '../components/PieChart'
 import { Colors } from '../constants/colors'
 
+
 function getWeekRange() {
   const now = new Date()
   const day = now.getDay()

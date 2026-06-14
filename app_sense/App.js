@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native'
+import * as Notifications from 'expo-notifications'
+import { registerForPushNotifications } from './services/notifications'
 
 import HomeScreen from './screens/HomeScreen'
 import ActivityScreen from './screens/ActivityScreen'
@@ -7,42 +9,56 @@ import ConflictOverviewScreen from './screens/ConflictOverviewScreen'
 import AlertDetailScreen from './screens/AlertDetailScreen'
 import { Colors } from './constants/colors'
 
-const MOCK_ALERTS = [
-  {
-    id: '1',
-    type: 'Fire Detected',
-    location: 'Kitchen',
-    score: 9,
-    date: new Date().toISOString(),
-    read: false,
-    description: 'Rapid motion and audio spike detected. AI analysis indicates high probability of fire hazard.',
-  },
-  {
-    id: '2',
-    type: 'Verbal Conflict Detected',
-    location: 'Living Room',
-    score: 2,
-    date: new Date(Date.now() - 17 * 60000).toISOString(),
-    read: false,
-    description: 'Elevated voice patterns detected over a 30-second window.',
-  },
-  {
-    id: '3',
-    type: 'Motion Alert',
-    location: 'Hallway',
-    score: 5,
-    date: new Date(Date.now() - 3600000).toISOString(),
-    read: true,
-    description: 'Unusual movement pattern detected during quiet hours.',
-  },
-]
-
 const TABS = ['Home', 'Activity', 'Overview']
+
+function notificationToAlert(notification) {
+  const data = notification.request.content.data?.alert
+  if (!data) return null
+  return {
+    id: notification.request.identifier,
+    type: data.type ?? 'Alert',
+    location: data.location ?? 'Home',
+    score: data.score ?? 5,
+    date: data.date ?? new Date().toISOString(),
+    description: data.description ?? '',
+    read: false,
+  }
+}
 
 export default function App() {
   const [tab, setTab] = useState('Home')
-  const [modal, setModal] = useState(null) // { screen, params }
-  const [alerts] = useState(MOCK_ALERTS)
+  const [modal, setModal] = useState(null)
+  const [alerts, setAlerts] = useState([])
+  const responseListener = useRef()
+
+  function addAlert(alert) {
+    if (!alert) return
+    setAlerts(prev => {
+      if (prev.find(a => a.id === alert.id)) return prev
+      return [alert, ...prev]
+    })
+  }
+
+  useEffect(() => {
+    registerForPushNotifications()
+
+    // Notification received while app is in foreground — add to list
+    const notifListener = Notifications.addNotificationReceivedListener(notification => {
+      addAlert(notificationToAlert(notification))
+    })
+
+    // Notification tapped — add to list and open detail screen
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      const alert = notificationToAlert(response.notification)
+      addAlert(alert)
+      if (alert) setModal({ screen: 'AlertDetail', params: { alert } })
+    })
+
+    return () => {
+      notifListener.remove()
+      responseListener.current?.remove()
+    }
+  }, [])
 
   const navigation = {
     navigate: (screen, params = {}) => {
@@ -78,11 +94,7 @@ export default function App() {
   return (
     <View style={styles.root}>
       <StatusBar barStyle="dark-content" backgroundColor={Colors.white} />
-
-      <View style={styles.content}>
-        {renderTab()}
-      </View>
-
+      <View style={styles.content}>{renderTab()}</View>
       <View style={styles.tabBar}>
         {TABS.map(t => (
           <TouchableOpacity key={t} style={styles.tabItem} onPress={() => { setTab(t); setModal(null) }}>
@@ -90,7 +102,6 @@ export default function App() {
           </TouchableOpacity>
         ))}
       </View>
-
       {renderModal()}
     </View>
   )

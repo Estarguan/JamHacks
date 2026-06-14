@@ -7,6 +7,7 @@ import useMotionSocket from './hooks/useMotionSocket'
 import useAudioTrigger from './hooks/useAudioTrigger'
 import useCamera from './hooks/useCamera'
 import useSuspiciousMode from './hooks/useSuspiciousMode'
+import useStreamRelay from './hooks/useStreamRelay'
 import './App.css'
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
   const monitorRef = useRef(null)
 
   const { streamRef, ready, error } = useCamera()
+  useStreamRelay(streamRef, ready)
   const { analyze } = useSuspiciousMode()
   const analyzingRef = useRef(false)
 
