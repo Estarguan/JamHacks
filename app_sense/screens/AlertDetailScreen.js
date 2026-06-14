@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Image } from 'react-native'
 import Logo from '../components/Logo'
 import RiskBadge from '../components/RiskBadge'
@@ -18,21 +18,26 @@ export default function AlertDetailScreen({ navigation, route }) {
   const [showCamera, setShowCamera] = useState(false)
   const [shownUri, setShownUri] = useState('')
   const [loadingUri, setLoadingUri] = useState('')
+  const loadingUriRef = useRef('')
   const color = riskColor(alert.score)
 
   const nextUri = () => `${FRAME_URL}?t=${Date.now()}`
 
   const openCamera = useCallback(() => {
     const first = nextUri()
+    loadingUriRef.current = first
     setShownUri('')
     setLoadingUri(first)
     setShowCamera(true)
   }, [])
 
   const onFrameLoad = useCallback(() => {
-    setShownUri(loadingUri)
-    setLoadingUri(nextUri())
-  }, [loadingUri])
+    const promoted = loadingUriRef.current
+    const next = nextUri()
+    loadingUriRef.current = next
+    setShownUri(promoted)
+    setLoadingUri(next)
+  }, [])
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -82,11 +87,8 @@ export default function AlertDetailScreen({ navigation, route }) {
                 <View style={styles.liveDot} />
                 <Text style={styles.liveText}>LIVE</Text>
               </View>
-              <TouchableOpacity onPress={() => setShowCamera(false)} style={styles.closeBtn}>
-                <Text style={styles.closeBtnText}>✕</Text>
-              </TouchableOpacity>
             </View>
-            <View style={styles.frameContainer}>
+            <View style={styles.frameContainer} pointerEvents="none">
               {shownUri ? (
                 <Image source={{ uri: shownUri }} style={StyleSheet.absoluteFill} resizeMode="contain" />
               ) : null}
@@ -97,6 +99,9 @@ export default function AlertDetailScreen({ navigation, route }) {
                 onLoad={onFrameLoad}
               />
             </View>
+            <TouchableOpacity style={styles.closeBtn} onPress={() => setShowCamera(false)}>
+              <Text style={styles.closeBtnText}>Close Camera</Text>
+            </TouchableOpacity>
           </SafeAreaView>
         </View>
       </Modal>
@@ -159,13 +164,13 @@ const styles = StyleSheet.create({
   liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#ef4444' },
   liveText: { fontSize: 12, fontWeight: '700', color: '#ef4444', letterSpacing: 2 },
   closeBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    margin: 16,
+    paddingVertical: 14,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.1)',
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  closeBtnText: { fontSize: 16, color: '#fff', fontWeight: '500' },
+  closeBtnText: { fontSize: 16, color: '#fff', fontWeight: '600' },
   frameContainer: { flex: 1, backgroundColor: '#000' },
+
 })
