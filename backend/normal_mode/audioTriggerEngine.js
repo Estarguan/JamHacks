@@ -214,15 +214,33 @@ export class AudioTriggerEngine {
     this._triggerHoldUntil = 0;
 
     try {
-      // Request microphone permission. Disable the browser's own processing so
-      // it doesn't distort our raw loudness reading.
-      this._stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: false,
-          noiseSuppression: false,
-          autoGainControl: false,
-        },
-      });
+      // Get permission first so device labels become readable
+      const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      tempStream.getTracks().forEach(t => t.stop());
+
+      // Find phone mic (Camo virtual audio device)
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const phoneMic = devices.find(
+        d => d.kind === 'audioinput' && (
+          d.label.toLowerCase().includes('camo') ||
+          d.label.toLowerCase().includes('reincubate') ||
+          d.label.toLowerCase().includes('droid')
+        )
+      );
+
+      const baseAudio = { echoCancellation: false, noiseSuppression: false, autoGainControl: false };
+
+      try {
+        const constraints = phoneMic
+          ? { ...baseAudio, deviceId: { exact: phoneMic.deviceId } }
+          : baseAudio;
+        this._stream = await navigator.mediaDevices.getUserMedia({ audio: constraints });
+        if (phoneMic) console.log('Audio trigger using phone mic:', phoneMic.label);
+      } catch {
+        // Phone mic unavailable — fall back to default mic
+        console.warn('Phone mic failed, falling back to default mic for audio trigger');
+        this._stream = await navigator.mediaDevices.getUserMedia({ audio: baseAudio });
+      }
     } catch (err) {
       const message =
         err && err.name === 'NotAllowedError'

@@ -26,8 +26,8 @@ class MotionDetector:
     def __init__(
         self,
         history_size: int = 20,
-        spike_multiplier: float = 4.0,
-        min_motion_score: float = 5.0,
+        spike_multiplier: float = 2.0,
+        min_motion_score: float = 2.0,
         cooldown_seconds: float = 3.0,
     ):
         self.history_size = history_size

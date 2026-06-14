@@ -16,7 +16,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
-import { spawn } from 'node:child_process';
+import { spawn, execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import WebSocket from 'ws';
 import { detectKeywordTrigger, KEYWORDS } from './keywordTriggerEngine.js';
@@ -83,6 +83,46 @@ function handleTranscript(text) {
   }
 }
 
+// --- Find Camo audio device name for SoX -----------------------------------
+function findCamoAudioDevice() {
+  let output = '';
+  try {
+    // ffmpeg always exits with code 1 when given no input — execSync throws,
+    // but the device list is still in err.stderr
+    execSync('ffmpeg -f avfoundation -list_devices true -i ""', { encoding: 'utf8', stdio: 'pipe' });
+  } catch (err) {
+    output = (err.stderr || '') + (err.stdout || '');
+  }
+  if (!output) return null;
+
+  const lines = output.split('\n');
+  let inAudioSection = false;
+  for (const line of lines) {
+    if (line.includes('AVFoundation audio devices')) inAudioSection = true;
+    if (inAudioSection && (line.toLowerCase().includes('camo') || line.toLowerCase().includes('reincubate'))) {
+      // Extract device name: "[N] Device Name" → "Device Name"
+      const nameMatch = line.match(/\[\d+\]\s+(.+)$/);
+      if (nameMatch) {
+        const deviceName = nameMatch[1].trim();
+        console.log(`Found Camo audio device: "${deviceName}"`);
+        return deviceName;
+      }
+    }
+  }
+  return null;
+}
+
+const camoDevice = findCamoAudioDevice();
+const recEnv = camoDevice
+  ? { ...process.env, AUDIODEV: camoDevice }
+  : process.env;
+
+if (camoDevice) {
+  console.log(`Using Camo mic ("${camoDevice}") for keyword detection.`);
+} else {
+  console.warn('Camo audio device not found — using system default mic.');
+}
+
 // --- Open the microphone via sox/rec ---------------------------------------
 // `rec` (from SoX) captures the default input device as raw signed 16-bit mono
 // PCM at 16kHz on stdout — exactly what Vosk expects.
@@ -94,7 +134,7 @@ const recorder = spawn('rec', [
   '-e', 'signed-integer',
   '-t', 'raw',
   '-',
-]);
+], { env: recEnv });
 
 recorder.on('error', (err) => {
   if (err.code === 'ENOENT') {
