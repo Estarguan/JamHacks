@@ -1,7 +1,8 @@
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from 'react-native'
 import Logo from '../components/Logo'
-import LogoMark from '../components/LogoMark'
+import SpiderFace from '../components/SpiderFace'
 import { Colors } from '../constants/colors'
+import { Type } from '../constants/typography'
 
 function greeting() {
   const h = new Date().getHours()
@@ -20,11 +21,12 @@ export default function HomeScreen({ navigation, alerts = [] }) {
           <Logo title="Home" />
         </View>
 
+        <SpiderFace size={260} />
+
         <Text style={styles.greeting}>{greeting()}</Text>
 
-        {/* Unread alerts card */}
         <View style={styles.card}>
-          <View style={styles.blueLine} />
+          <View style={styles.redLine} />
           <Text style={styles.cardLabel}>{unread} unread alert{unread !== 1 ? 's' : ''}</Text>
           <TouchableOpacity
             style={styles.blackBtn}
@@ -34,11 +36,6 @@ export default function HomeScreen({ navigation, alerts = [] }) {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.chartCard}>
-          <LogoMark size={260} />
-        </View>
-
-        {/* This month's stats */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>This month's stats</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Overview')}>
@@ -52,9 +49,9 @@ export default function HomeScreen({ navigation, alerts = [] }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.white },
-  container: { padding: 24, paddingTop: 12 },
-  logoRow: { alignItems: 'center', marginBottom: 32 },
-  greeting: { fontSize: 40, fontWeight: '700', color: Colors.black, marginBottom: 24 },
+  container: { padding: 24, paddingTop: 76 },
+  logoRow: { alignItems: 'center', marginBottom: 16 },
+  greeting: { ...Type.header, fontFamily: 'GoogleSansFlex-Medium', color: Colors.black, marginBottom: 20 },
   card: {
     backgroundColor: Colors.white,
     borderRadius: 16,
@@ -63,14 +60,14 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 16,
   },
-  blueLine: {
+  redLine: {
     width: 36,
     height: 3,
-    backgroundColor: Colors.blue,
+    backgroundColor: '#EF4444',
     borderRadius: 2,
     marginBottom: 10,
   },
-  cardLabel: { fontSize: 18, fontWeight: '500', color: Colors.black, marginBottom: 16 },
+  cardLabel: { ...Type.semiheader, color: Colors.black, marginBottom: 16 },
   blackBtn: {
     backgroundColor: Colors.black,
     borderRadius: 24,
@@ -78,16 +75,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28,
     alignSelf: 'flex-start',
   },
-  blackBtnText: { color: Colors.white, fontWeight: '600', fontSize: 15 },
-  chartCard: {
-    backgroundColor: Colors.white,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    padding: 20,
-    marginBottom: 16,
-    alignItems: 'center',
-  },
-  cardTitle: { fontSize: 16, fontWeight: '600', color: Colors.black, marginBottom: 8 },
-  viewLink: { fontSize: 14, color: Colors.blue, fontWeight: '500' },
+  blackBtnText: { ...Type.semiheader, color: Colors.white },
+  cardTitle: { ...Type.semiheader, color: Colors.black, marginBottom: 8 },
+  viewLink: { ...Type.body, color: '#EF4444' },
 })

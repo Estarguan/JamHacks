@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Mod
 import Logo from '../components/Logo'
 import RiskBadge from '../components/RiskBadge'
 import { Colors, riskColor, riskLabel } from '../constants/colors'
+import { Type } from '../constants/typography'
 
 const FRAME_URL = 'http://10.37.103.237:3001/latest-frame'
 
@@ -71,10 +72,7 @@ export default function AlertDetailScreen({ navigation, route }) {
           <Text style={styles.cameraBtnText}>View Camera</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.dismissBtn}
-          onPress={() => navigation.navigate('Home')}
-        >
+        <TouchableOpacity style={styles.dismissBtn} onPress={() => navigation.navigate('Home')}>
           <Text style={styles.dismissText}>Dismiss</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -127,14 +125,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 16,
   },
-  location: { fontSize: 20, fontWeight: '700', color: Colors.black },
-  type: { fontSize: 14, color: Colors.gray, marginTop: 2 },
-  time: { fontSize: 14, color: Colors.gray },
+  location: { ...Type.semiheader, color: Colors.black },
+  type: { ...Type.body, color: Colors.gray, marginTop: 2 },
+  time: { ...Type.body, color: Colors.gray },
   divider: { height: 1, backgroundColor: Colors.border, marginBottom: 16 },
   riskRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 16 },
-  riskLabel: { fontSize: 26, fontWeight: '700' },
+  riskLabel: { ...Type.header },
   descriptionBlock: { marginTop: 4 },
-  bullet: { fontSize: 15, color: Colors.black, lineHeight: 22 },
+  bullet: { ...Type.body, color: Colors.black, lineHeight: 18 },
   cameraBtn: {
     backgroundColor: Colors.black,
     borderRadius: 24,
@@ -142,7 +140,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
-  cameraBtnText: { fontSize: 16, fontWeight: '600', color: Colors.white },
+  cameraBtnText: { ...Type.semiheader, color: Colors.white },
   dismissBtn: {
     borderWidth: 1,
     borderColor: Colors.border,
@@ -150,7 +148,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
   },
-  dismissText: { fontSize: 16, fontWeight: '500', color: Colors.black },
+  dismissText: { ...Type.semiheader, color: Colors.black },
   cameraModal: { flex: 1, backgroundColor: '#000' },
   cameraModalInner: { flex: 1 },
   cameraHeader: {
@@ -162,7 +160,7 @@ const styles = StyleSheet.create({
   },
   liveIndicator: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#ef4444' },
-  liveText: { fontSize: 12, fontWeight: '700', color: '#ef4444', letterSpacing: 2 },
+  liveText: { ...Type.body, fontWeight: '700', color: '#ef4444', letterSpacing: 2 },
   closeBtn: {
     margin: 16,
     paddingVertical: 14,
@@ -170,7 +168,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.1)',
     alignItems: 'center',
   },
-  closeBtnText: { fontSize: 16, color: '#fff', fontWeight: '600' },
+  closeBtnText: { ...Type.semiheader, color: '#fff' },
   frameContainer: { flex: 1, backgroundColor: '#000' },
-
 })

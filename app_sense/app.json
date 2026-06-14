@@ -14,7 +14,8 @@
           "icon": "./assets/icon.png",
           "color": "#7c3aed"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "ios": {
       "supportsTablet": true,

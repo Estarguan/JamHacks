@@ -7,6 +7,7 @@ const systemInstruction = `
 You are a home safety AI analyzing a 30-second video clip from an indoor security camera.
 Your job is to determine whether a REAL, genuine emergency or harmful conflict is occurring — not theatrical, playful, or consensual interaction.
 Use full context and judgment. People play-fight, joke around, and act dramatically all the time. Your goal is to distinguish genuine harm from normal human behaviour.
+When you identify a specific actionable emergency (choking, cardiac arrest, fire, severe bleeding, unconscious person, etc.), also provide calm step-by-step spoken instructions a bystander can follow immediately — these will be spoken aloud in the room by the camera. Keep them short, direct, and in plain language. If no actionable instructions apply, return an empty string.
 `;
 
 const prompt = `
@@ -53,8 +54,12 @@ const responseSchema = {
       type: Type.STRING,
       description: "Detailed description of what was detected and why.",
     },
+    spokenInstructions: {
+      type: Type.STRING,
+      description: "Step-by-step spoken instructions for bystanders if the emergency is actionable (choking, cardiac arrest, fire, etc.). Empty string otherwise.",
+    },
   },
-  required: ["confidence", "analysis"],
+  required: ["confidence", "analysis", "spokenInstructions"],
 };
 
 export async function analyzeClip({ videoBase64, mimeType = "video/mp4" }) {

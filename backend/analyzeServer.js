@@ -10,6 +10,46 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "200mb" }));
 
+// --- ElevenLabs TTS ---
+let latestAudio = null;
+
+async function generateSpeech(text) {
+  const voiceId = process.env.ELEVENLABS_VOICE_ID;
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!voiceId || !apiKey || apiKey === 'your_elevenlabs_key_here') return null;
+
+  const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+    method: 'POST',
+    headers: {
+      'xi-api-key': apiKey,
+      'Content-Type': 'application/json',
+      'Accept': 'audio/mpeg',
+    },
+    body: JSON.stringify({
+      text,
+      model_id: 'eleven_turbo_v2_5',
+      voice_settings: { stability: 0.5, similarity_boost: 0.75 },
+    }),
+  });
+
+  if (!res.ok) {
+    console.error('[elevenlabs] error:', res.status, await res.text());
+    return null;
+  }
+
+  const buf = Buffer.from(await res.arrayBuffer());
+  latestAudio = buf;
+  return buf;
+}
+
+app.get('/audio/latest', (req, res) => {
+  if (!latestAudio) return res.status(503).send('No audio available');
+  res.setHeader('Content-Type', 'audio/mpeg');
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.end(latestAudio);
+});
+
 // --- Camera frame relay ---
 let latestFrame = null;
 const mjpegClients = new Set();
@@ -42,6 +82,14 @@ app.get("/latest-frame", (req, res) => {
   res.end(latestFrame);
 });
 
+app.post("/test-speech", async (req, res) => {
+  const text = "Alert. Someone appears to be choking. Stand behind them and make a fist with one hand. Place it just above their belly button. Grab your fist with your other hand and give quick inward and upward thrusts. Repeat until the object is cleared or emergency services arrive."
+  console.log('[test-speech] key:', process.env.ELEVENLABS_API_KEY?.slice(0, 8), 'voice:', process.env.ELEVENLABS_VOICE_ID)
+  const audio = await generateSpeech(text)
+  if (!audio) return res.status(500).json({ error: 'ElevenLabs failed — check backend console' })
+  res.json({ ok: true, bytes: audio.length })
+})
+
 app.post("/test-notification", async (req, res) => {
   await sendAlertNotification({
     confidence: 0.9,
@@ -69,6 +117,7 @@ app.post("/analyze", async (req, res) => {
   const { videoBase64, mimeType } = req.body;
   try {
     const result = await startSuspiciousMode({ videoBase64, mimeType });
+
     if (result.decision === "send_alert") {
       sendAlertNotification({ confidence: result.confidence, analysis: result.analysis });
     }

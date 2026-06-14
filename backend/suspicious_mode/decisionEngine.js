@@ -3,12 +3,13 @@ import {
   CONFIDENCE_NORMAL_THRESHOLD,
 } from "./constants.js";
 
-export function decide({ confidence, analysis, videoBase64 }) {
+export function decide({ confidence, analysis, spokenInstructions, videoBase64 }) {
   if (confidence >= CONFIDENCE_ALERT_THRESHOLD) {
     return {
       decision: "send_alert",
       confidence,
       analysis,
+      spokenInstructions,
       videoBase64,
     };
   }

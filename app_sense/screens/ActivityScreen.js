@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } fr
 import Logo from '../components/Logo'
 import RiskBadge from '../components/RiskBadge'
 import { Colors } from '../constants/colors'
+import { Type } from '../constants/typography'
 
 function timeAgo(date) {
   const mins = Math.floor((Date.now() - new Date(date)) / 60000)
@@ -13,7 +14,7 @@ function timeAgo(date) {
   return 'Today'
 }
 
-function AlertRow({ alert, onPress, expanded }) {
+function AlertRow({ alert, onPress }) {
   return (
     <TouchableOpacity style={styles.alertCard} onPress={() => onPress(alert)}>
       <View style={styles.alertLeft}>
@@ -57,7 +58,6 @@ export default function ActivityScreen({ navigation, alerts = [] }) {
 
         <View style={styles.divider} />
 
-        {/* Recent / New Alerts */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionLabel}>Recent</Text>
           {newExpanded && (
@@ -68,10 +68,7 @@ export default function ActivityScreen({ navigation, alerts = [] }) {
         </View>
 
         {!newExpanded ? (
-          <TouchableOpacity
-            style={styles.alertCard}
-            onPress={() => setNewExpanded(true)}
-          >
+          <TouchableOpacity style={styles.alertCard} onPress={() => newAlerts.length > 0 && setNewExpanded(true)} activeOpacity={newAlerts.length > 0 ? 0.7 : 1}>
             <View style={styles.alertLeft}>
               <View style={styles.newBadge}>
                 <Text style={styles.newBadgeText}>{newAlerts.length}</Text>
@@ -85,7 +82,7 @@ export default function ActivityScreen({ navigation, alerts = [] }) {
             </View>
             <View style={styles.alertRight}>
               <Text style={styles.alertTime}>Now</Text>
-              <Text style={styles.arrow}>↓</Text>
+              {newAlerts.length > 0 && <Text style={styles.arrow}>↓</Text>}
             </View>
           </TouchableOpacity>
         ) : (
@@ -94,7 +91,6 @@ export default function ActivityScreen({ navigation, alerts = [] }) {
           ))
         )}
 
-        {/* Previous */}
         {oldAlerts.length > 0 && (
           <>
             <View style={styles.sectionHeader}>
@@ -112,7 +108,7 @@ export default function ActivityScreen({ navigation, alerts = [] }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.white },
-  container: { padding: 24, paddingTop: 12 },
+  container: { padding: 24, paddingTop: 76 },
   logoRow: { alignItems: 'center', marginBottom: 20 },
   headerRow: {
     flexDirection: 'row',
@@ -120,7 +116,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
-  heading: { fontSize: 36, fontWeight: '700', color: Colors.black },
+  heading: { ...Type.header, color: Colors.black },
   filterIcon: { fontSize: 22, color: Colors.black },
   divider: { height: 1, backgroundColor: Colors.border, marginBottom: 20 },
   sectionHeader: {
@@ -129,8 +125,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
-  sectionLabel: { fontSize: 14, color: Colors.gray },
-  collapseText: { fontSize: 14, color: Colors.gray },
+  sectionLabel: { ...Type.body, color: Colors.gray },
+  collapseText: { ...Type.body, color: Colors.gray },
   alertCard: {
     backgroundColor: Colors.white,
     borderRadius: 16,
@@ -144,15 +140,15 @@ const styles = StyleSheet.create({
   },
   alertLeft: { flexDirection: 'row', alignItems: 'center', gap: 14, flex: 1 },
   alertInfo: { flex: 1 },
-  alertTitle: { fontSize: 16, fontWeight: '700', color: Colors.black },
-  alertSub: { fontSize: 13, color: Colors.gray, marginTop: 2 },
+  alertTitle: { ...Type.semiheader, color: Colors.black },
+  alertSub: { ...Type.body, color: Colors.gray, marginTop: 2 },
   alertRight: { alignItems: 'flex-end', gap: 6 },
-  alertTime: { fontSize: 13, color: Colors.gray },
-  arrow: { fontSize: 16, color: Colors.black },
+  alertTime: { ...Type.body, color: Colors.gray },
+  arrow: { ...Type.semiheader, color: Colors.black },
   newBadge: {
     width: 40, height: 40, borderRadius: 20,
     borderWidth: 1.5, borderColor: Colors.blue,
     alignItems: 'center', justifyContent: 'center',
   },
-  newBadgeText: { fontSize: 16, fontWeight: '600', color: Colors.blue },
+  newBadgeText: { ...Type.semiheader, color: Colors.blue },
 })

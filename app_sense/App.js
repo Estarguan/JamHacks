@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native'
+import { useFonts } from 'expo-font'
+import { Type } from './constants/typography'
 import * as Notifications from 'expo-notifications'
 import { registerForPushNotifications } from './services/notifications'
 
@@ -26,6 +28,13 @@ function notificationToAlert(notification) {
 }
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    'GoogleSansFlex-Regular':  require('./assets/fonts/GoogleSansFlex-Regular.ttf'),
+    'GoogleSansFlex-Medium':   require('./assets/fonts/GoogleSansFlex-Medium.ttf'),
+    'GoogleSansFlex-SemiBold': require('./assets/fonts/GoogleSansFlex-SemiBold.ttf'),
+    'GoogleSansFlex-Bold':     require('./assets/fonts/GoogleSansFlex-Bold.ttf'),
+  })
+
   const [tab, setTab] = useState('Home')
   const [modal, setModal] = useState(null)
   const [alerts, setAlerts] = useState([])
@@ -42,12 +51,10 @@ export default function App() {
   useEffect(() => {
     registerForPushNotifications()
 
-    // Notification received while app is in foreground — add to list
     const notifListener = Notifications.addNotificationReceivedListener(notification => {
       addAlert(notificationToAlert(notification))
     })
 
-    // Notification tapped — add to list and open detail screen
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
       const alert = notificationToAlert(response.notification)
       addAlert(alert)
@@ -59,6 +66,8 @@ export default function App() {
       responseListener.current?.remove()
     }
   }, [])
+
+  if (!fontsLoaded) return null
 
   const navigation = {
     navigate: (screen, params = {}) => {
@@ -119,6 +128,6 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   tabItem: { flex: 1, alignItems: 'center' },
-  tabLabel: { fontSize: 12, fontWeight: '500', color: Colors.gray },
+  tabLabel: { ...Type.body, color: Colors.gray },
   tabActive: { color: Colors.blue },
 })

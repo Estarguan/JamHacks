@@ -123,6 +123,24 @@ export default function App() {
           <CameraFeed streamRef={streamRef} ready={ready} error={error} />
           <AlertFeed alerts={alerts} />
         </div>
+
+        <div className="flex gap-4 mt-6 justify-center">
+          <button
+            onClick={async () => {
+              await fetch('http://localhost:3001/test-speech', { method: 'POST' })
+              new Audio('http://localhost:3001/audio/latest').play()
+            }}
+            className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold rounded-full transition-colors"
+          >
+            Play Alert Audio
+          </button>
+          <button
+            onClick={() => fetch('http://localhost:3001/test-notification', { method: 'POST' })}
+            className="px-6 py-3 bg-red-600/80 hover:bg-red-500 text-white font-semibold rounded-full transition-colors"
+          >
+            Send Test Notification
+          </button>
+        </div>
       </section>
     </div>
   )

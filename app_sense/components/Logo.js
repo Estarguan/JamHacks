@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native'
 import LogoMark from './LogoMark'
 import { Colors } from '../constants/colors'
+import { Type } from '../constants/typography'
 
 export default function Logo({ title }) {
   return (
@@ -12,14 +13,6 @@ export default function Logo({ title }) {
 }
 
 const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  title: {
-    fontSize: 17,
-    fontWeight: '500',
-    color: Colors.black,
-  },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  title: { ...Type.semiheader, color: Colors.black },
 })

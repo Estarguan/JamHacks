@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native'
 import Logo from '../components/Logo'
 import PieChart from '../components/PieChart'
 import { Colors } from '../constants/colors'
-
+import { Type } from '../constants/typography'
 
 function getWeekRange() {
   const now = new Date()
@@ -11,7 +11,6 @@ function getWeekRange() {
   monday.setDate(now.getDate() - ((day + 6) % 7))
   const sunday = new Date(monday)
   sunday.setDate(monday.getDate() + 6)
-
   const fmt = (d) => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
   return `${fmt(monday)}–${sunday.getDate()}, ${sunday.getFullYear()}`
 }
@@ -61,7 +60,6 @@ export default function ConflictOverviewScreen({ alerts = [] }) {
           </View>
         </View>
 
-        {/* 2x2 bento grid */}
         <View style={styles.grid}>
           {bentos.map((b, i) => (
             <View key={i} style={styles.bento}>
@@ -79,18 +77,14 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.white },
   container: { padding: 24, paddingTop: 12 },
   logoRow: { alignItems: 'center', marginBottom: 24 },
-  weekText: { fontSize: 32, fontWeight: '700', color: Colors.black, marginBottom: 16 },
+  weekText: { ...Type.header, color: Colors.black, marginBottom: 16 },
   divider: { height: 1, backgroundColor: Colors.border, marginBottom: 24 },
   chartWrap: { alignItems: 'center', marginBottom: 28 },
   legend: { flexDirection: 'row', gap: 20, marginTop: 16 },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legendDot: { width: 10, height: 10, borderRadius: 5 },
-  legendText: { fontSize: 13, color: Colors.gray },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
+  legendText: { ...Type.body, color: Colors.gray },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   bento: {
     width: '47%',
     backgroundColor: Colors.lightGray,
@@ -98,6 +92,6 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: 'center',
   },
-  bentoValue: { fontSize: 36, fontWeight: '700', marginBottom: 4 },
-  bentoLabel: { fontSize: 13, color: Colors.gray },
+  bentoValue: { ...Type.header, marginBottom: 4 },
+  bentoLabel: { ...Type.body, color: Colors.gray },
 })
