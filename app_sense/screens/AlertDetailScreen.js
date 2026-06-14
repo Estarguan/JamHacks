@@ -7,7 +7,7 @@ import { Type } from '../constants/typography'
 
 const FRAME_URL = 'http://10.37.103.237:3001/latest-frame'
 
-export default function AlertDetailScreen({ navigation, route }) {
+export default function AlertDetailScreen({ navigation, route, markAlertRead, deleteAlert }) {
   const alert = route?.params?.alert ?? {
     location: 'Kitchen',
     type: 'Fire detected',
@@ -68,12 +68,18 @@ export default function AlertDetailScreen({ navigation, route }) {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.cameraBtn} onPress={openCamera}>
-          <Text style={styles.cameraBtnText}>View Camera</Text>
+        {!alert.read && (
+          <TouchableOpacity style={styles.cameraBtn} onPress={openCamera}>
+            <Text style={styles.cameraBtnText}>View Camera</Text>
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity style={styles.dismissBtn} onPress={() => { markAlertRead?.(alert.id); navigation.navigate('Activity') }}>
+          <Text style={styles.dismissText}>Dismiss</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.dismissBtn} onPress={() => navigation.navigate('Home')}>
-          <Text style={styles.dismissText}>Dismiss</Text>
+        <TouchableOpacity style={styles.deleteBtn} onPress={() => { deleteAlert?.(alert.id); navigation.navigate('Activity') }}>
+          <Text style={styles.deleteText}>Delete</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -109,7 +115,7 @@ export default function AlertDetailScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.white },
-  container: { padding: 24, paddingTop: 12 },
+  container: { padding: 24, paddingTop: 76 },
   logoRow: { alignItems: 'center', marginBottom: 32 },
   card: {
     backgroundColor: Colors.white,
@@ -147,8 +153,17 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     paddingVertical: 14,
     alignItems: 'center',
+    marginBottom: 12,
   },
   dismissText: { ...Type.semiheader, color: Colors.black },
+  deleteBtn: {
+    borderWidth: 1,
+    borderColor: 'rgba(239,68,68,0.3)',
+    borderRadius: 24,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  deleteText: { ...Type.semiheader, color: '#EF4444' },
   cameraModal: { flex: 1, backgroundColor: '#000' },
   cameraModalInner: { flex: 1 },
   cameraHeader: {

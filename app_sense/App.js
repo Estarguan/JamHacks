@@ -5,6 +5,7 @@ import { Type } from './constants/typography'
 import * as Notifications from 'expo-notifications'
 import { registerForPushNotifications } from './services/notifications'
 
+import CornerWebs from './components/CornerWebs'
 import HomeScreen from './screens/HomeScreen'
 import ActivityScreen from './screens/ActivityScreen'
 import ConflictOverviewScreen from './screens/ConflictOverviewScreen'
@@ -48,6 +49,14 @@ export default function App() {
     })
   }
 
+  function markAlertRead(id) {
+    setAlerts(prev => prev.map(a => a.id === id ? { ...a, read: true } : a))
+  }
+
+  function deleteAlert(id) {
+    setAlerts(prev => prev.filter(a => a.id !== id))
+  }
+
   useEffect(() => {
     registerForPushNotifications()
 
@@ -83,7 +92,7 @@ export default function App() {
 
   function renderTab() {
     if (tab === 'Home') return <HomeScreen navigation={navigation} alerts={alerts} />
-    if (tab === 'Activity') return <ActivityScreen navigation={navigation} alerts={alerts} />
+    if (tab === 'Activity') return <ActivityScreen navigation={navigation} alerts={alerts} markAlertRead={markAlertRead} />
     if (tab === 'Overview') return <ConflictOverviewScreen navigation={navigation} alerts={alerts} />
     return null
   }
@@ -93,7 +102,7 @@ export default function App() {
     if (modal.screen === 'AlertDetail') {
       return (
         <View style={StyleSheet.absoluteFill}>
-          <AlertDetailScreen navigation={navigation} route={{ params: modal.params }} />
+          <AlertDetailScreen navigation={navigation} route={{ params: modal.params }} markAlertRead={markAlertRead} deleteAlert={deleteAlert} />
         </View>
       )
     }
@@ -102,6 +111,7 @@ export default function App() {
 
   return (
     <View style={styles.root}>
+      <CornerWebs />
       <StatusBar barStyle="dark-content" backgroundColor={Colors.white} />
       <View style={styles.content}>{renderTab()}</View>
       <View style={styles.tabBar}>
@@ -124,8 +134,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: Colors.border,
     backgroundColor: Colors.white,
-    paddingBottom: 20,
-    paddingTop: 10,
+    paddingBottom: 36,
+    paddingTop: 16,
   },
   tabItem: { flex: 1, alignItems: 'center' },
   tabLabel: { ...Type.body, color: Colors.gray },

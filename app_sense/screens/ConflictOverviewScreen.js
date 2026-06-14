@@ -31,11 +31,18 @@ export default function ConflictOverviewScreen({ alerts = [] }) {
   const medium = thisWeek.filter(a => a.score >= 4 && a.score < 7)
   const low = thisWeek.filter(a => a.score < 4)
 
+  const avgBar = [
+    { color: Colors.high,   flex: high.length },
+    { color: Colors.medium, flex: medium.length },
+    { color: Colors.low,    flex: low.length },
+  ].filter(s => s.flex > 0)
+  if (avgBar.length === 0) avgBar.push({ color: Colors.border, flex: 1 })
+
   const bentos = [
-    { label: 'High Risk', value: high.length, color: Colors.high },
-    { label: 'Medium Risk', value: medium.length, color: Colors.medium },
-    { label: 'Low Risk', value: low.length, color: Colors.low },
-    { label: 'Avg Score', value: avgScore(thisWeek), color: Colors.black },
+    { label: 'High Risk',   value: high.length,        color: Colors.high,   bar: [{ color: Colors.high,   flex: 1 }] },
+    { label: 'Medium Risk', value: medium.length,      color: Colors.medium, bar: [{ color: Colors.medium, flex: 1 }] },
+    { label: 'Low Risk',    value: low.length,         color: Colors.low,    bar: [{ color: Colors.low,    flex: 1 }] },
+    { label: 'Avg Score',   value: avgScore(thisWeek), color: Colors.black,  bar: avgBar },
   ]
 
   return (
@@ -63,6 +70,19 @@ export default function ConflictOverviewScreen({ alerts = [] }) {
         <View style={styles.grid}>
           {bentos.map((b, i) => (
             <View key={i} style={styles.bento}>
+              <View style={styles.bentoBar}>
+                {b.bar.map((seg, j) => (
+                  <View
+                    key={j}
+                    style={[
+                      styles.bentoBarSegment,
+                      { backgroundColor: seg.color, flex: seg.flex },
+                      j === 0 && { borderTopLeftRadius: 3, borderBottomLeftRadius: 3 },
+                      j === b.bar.length - 1 && { borderTopRightRadius: 3, borderBottomRightRadius: 3 },
+                    ]}
+                  />
+                ))}
+              </View>
               <Text style={[styles.bentoValue, { color: b.color }]}>{b.value}</Text>
               <Text style={styles.bentoLabel}>{b.label}</Text>
             </View>
@@ -75,7 +95,7 @@ export default function ConflictOverviewScreen({ alerts = [] }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.white },
-  container: { padding: 24, paddingTop: 12 },
+  container: { padding: 24, paddingTop: 76 },
   logoRow: { alignItems: 'center', marginBottom: 24 },
   weekText: { ...Type.header, color: Colors.black, marginBottom: 16 },
   divider: { height: 1, backgroundColor: Colors.border, marginBottom: 24 },
@@ -87,11 +107,15 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   bento: {
     width: '47%',
-    backgroundColor: Colors.lightGray,
+    backgroundColor: Colors.white,
     borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
     padding: 20,
     justifyContent: 'center',
   },
+  bentoBar: { flexDirection: 'row', width: 44, height: 5, borderRadius: 3, overflow: 'hidden', marginBottom: 12 },
+  bentoBarSegment: { height: 5 },
   bentoValue: { ...Type.header, marginBottom: 4 },
   bentoLabel: { ...Type.body, color: Colors.gray },
 })
