@@ -18,6 +18,7 @@ import path from 'node:path';
 import readline from 'node:readline';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import WebSocket from 'ws';
 import { detectKeywordTrigger, KEYWORDS } from './keywordTriggerEngine.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -49,6 +50,21 @@ if (!fs.existsSync(modelPath)) {
   process.exit(1);
 }
 
+// --- Forward a keyword hit to the WebSocket server so the frontend fires ----
+function sendKeywordTrigger(phrase, category) {
+  const ws = new WebSocket('ws://localhost:8765');
+  ws.on('open', () => {
+    ws.send(JSON.stringify({
+      type: 'keyword',
+      phrase,
+      category,
+      time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    }));
+    ws.close();
+  });
+  ws.on('error', () => {}); // don't crash if Python server isn't up yet
+}
+
 // --- Print a matched-keyword block in the required format ------------------
 function handleTranscript(text) {
   if (!text || !text.trim()) return;
@@ -63,6 +79,7 @@ function handleTranscript(text) {
     console.log(`Matched phrase: ${m.phrase}`);
     console.log(`Category: ${m.category}`);
     console.log(`Transcript: ${text}\n`);
+    sendKeywordTrigger(m.phrase, m.category);
   }
 }
 

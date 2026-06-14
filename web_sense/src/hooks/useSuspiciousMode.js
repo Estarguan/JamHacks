@@ -1,4 +1,4 @@
-const RECORD_SECONDS = 30
+const RECORD_SECONDS = 10
 
 export default function useSuspiciousMode() {
   async function analyze(streamRef, onCountdown) {

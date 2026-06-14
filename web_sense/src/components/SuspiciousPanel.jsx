@@ -1,6 +1,6 @@
 export default function SuspiciousPanel({ countdown, result, onDismiss }) {
   if (!result) {
-    const progress = ((30 - countdown) / 30) * 100
+    const progress = ((10 - countdown) / 10) * 100
 
     return (
       <div className="bg-yellow-500/[0.05] border border-yellow-500/20 rounded-2xl p-6">
